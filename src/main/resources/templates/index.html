@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FriendPaste</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@200&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+            background: #f3ffe0;
+            overflow: hidden;
+        }
+
+        .title {
+            margin-left: auto;
+            margin-right: auto;
+            color: #0c001f;
+            text-align: center;
+            height: 100px;
+        }
+
+        .title>img {
+            height: 100px;
+        }
+
+        .input {
+            max-width: 1120px;
+            margin-left: auto;
+            margin-right: auto;
+            border: 2px solid #c4fca3;
+            border-radius: 5px;
+            background-color: white;
+            margin-top: 40px;
+        }
+
+        .input>.top {
+            background-color: white;
+            border-bottom: solid 1px gray;
+            margin-right: auto;
+            margin-left: auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .input>.top>div>input,
+        .input>.top>div>select {
+            border-radius: 1px;
+            border: 1px solid lightgray;
+            color: black;
+            background-color: rgb(255, 255, 255);
+            height: 30px;
+        }
+
+        .input>.top>div>input:focus-visible,
+        .input>.top>div>select:focus-visible {
+            outline: 1px solid #c4fca3;
+        }
+
+        .input>.top>div {
+            padding: 10px 15px;
+            margin: 15px;
+            display: flex;
+            flex-direction: column;
+            width: 25%;
+            height: 50px;
+        }
+
+
+        .input>.middle {
+            margin-top: 5px;
+            width: 100%;
+            display: flex;
+            border-bottom: solid 1px gray;
+        }
+
+        .input>.middle>.area {
+            width: 100%;
+            min-height: calc(100vh - 150px);
+        }
+
+        .bottom {
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .submit {
+            margin: 20px;
+            width: calc(100% - 40px);
+            height: 40px;
+
+            background-color: rgb(169, 250, 169);
+            border: 1px solid gray;
+        }
+
+        .submit:hover {
+            background-color: rgb(192, 252, 192);
+        }
+
+        .submit:disabled {
+            background-color: rgb(235, 235, 235);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="title">
+            <img src="logo.svg" alt="" srcset="">
+        </div>
+        <div class="input">
+            <div class="top">
+                <div>
+                    <label for="filename">File name</label>
+                    <input id="filename" class="filename" type="text">
+                </div>
+                <div>
+                    <label for="deletepass">Delete password</label>
+                    <input type="password" class="deletepass" name="deletepass" id="deletepass">
+                </div>
+                <div>
+                    <label for="expiry">Delete after</label>
+                    <select name="expiry" id="expiry">
+                        <option value="1">1 day</option>
+                        <option value="3">3 days</option>
+                        <option value="7">1 week</option>
+                        <option value="14">2 weeks</option>
+                    </select>
+                </div>
+            </div>
+            <div class="middle">
+                <div id="area" class="area">
+                </div>
+            </div>
+            <div class="bottom">
+                <!-- Submit-->
+                <!-- ReCAPTCHA-->
+
+                <button class="submit" id="submit" onclick="return submit()">利用規約に同意して送信</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.27.0/min/vs/loader.min.js" integrity="sha512-SExj71Cw3B9C9EE8BC/ad3AKia5zQXDj/2SM4THgkeKh5GIFZhKM/R3uclUG8YZwJrjcVhydAlIHmfNvsBCKZA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.27.0/min/vs' } });
+
+        var editor;
+        require(['vs/editor/editor.main'], init);
+
+        function init() {
+            editor = monaco.editor.create(document.getElementById('area'), {
+                theme: 'vs',
+                lineNumbers: "on",
+                fontFamily: "JetBrains Mono",
+                renderLineHighlight: "none",
+                cursorStyle: "line-thin",
+                lineHeight: "25px",
+            });
+        }
+
+        function submit() {
+            document.getElementById("submit").disabled = true;
+            const fileName = document.getElementById("filename").value;
+            const password = document.getElementById("deletepass").value;
+            const expiry = parseInt(document.getElementById("expiry").value);
+            const content = editor.getValue();
+            console.log(typeof(fileName));
+            console.log(typeof(password));
+            console.log(typeof(expiry));
+            console.log(typeof(content));
+            const data = {
+                'filename': fileName,
+                'delete_pass': password,
+                'delete_after': expiry,
+                'content': content
+            };
+            const body = JSON.stringify(data);
+            console.log(typeof(data));
+            console.log(typeof(body));
+            fetch("/paste/api/v1", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: body
+            }).then(function (response) {
+                if (response.status === 201) {
+                    console.log(response.json);
+                } else {
+                    console.log(response.statusText);
+                }
+            }).catch(function (response) {
+                console.log(response);
+            });
+            return false;
+        }
+
+    </script>
+</body>
+
+</html>

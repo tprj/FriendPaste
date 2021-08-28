@@ -1,6 +1,7 @@
 package xyz.tprj.friendpaste.dataset
 
 import dev.moru3.compsql.annotation.Column
+import dev.moru3.compsql.annotation.IgnoreColumn
 import dev.moru3.compsql.annotation.TableName
 import java.sql.Date
 

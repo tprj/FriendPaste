@@ -1,4 +1,4 @@
 package xyz.tprj.friendpaste.dataset
 
-class GetResponseDataSet(val id: String, val filename: String, val createdAt: String, val deleteAt: String, val content: String, val matchIp: Boolean) {
+class GetResponseDataSet(val id: String, val filename: String, val created_at: String, val delete_at: String, val content: String, val match_ip: Boolean) {
 }
