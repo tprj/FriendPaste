@@ -31,10 +31,11 @@ class Restful {
             now,
             deleteAt,
             request.content ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST),
-            servlet.remoteAddr
+            servlet.getHeader("CF-Connecting-IP")?:servlet.remoteAddr
         ).also {
             DBManager.con.put(it).send(false)
-            return ResponseEntity(GetResponseDataSet(it.id, it.filename, it.createdAt.toString(), it.deleteAt.toString(), it.content, it.ip == servlet.remoteAddr), HttpStatus.CREATED)
+            return ResponseEntity(GetResponseDataSet(it.id, it.filename, it.createdAt.toString(), it.deleteAt.toString(), it.content,it.ip == (servlet.getHeader("CF-Connecting-IP") ?: servlet.remoteAddr)
+            ), HttpStatus.CREATED)
         }
     }
 
